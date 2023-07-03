@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -118,7 +117,7 @@ fun DetailsScreen(selectedItem: DataItem?, navController: NavController) {
             Surface(
                 modifier = Modifier.padding(90.dp),
                 shape = RoundedCornerShape(8.dp),
-                color = Color.LightGray // Replace with your desired grey color
+                color = Color.LightGray
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
