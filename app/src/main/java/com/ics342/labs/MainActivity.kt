@@ -4,10 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
@@ -19,16 +22,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ics342.labs.data.DataItem
 import com.ics342.labs.ui.theme.LabsTheme
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.AlertDialog
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 private val dataItems = listOf(
     DataItem(1, "Item 1", "Description 1"),
@@ -57,11 +62,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             LabsTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     //Greeting("Android")
-                    DataItemList(dataItems)
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "ListScreen") {
+                        composable("ListScreen") {
+                            DataItemList(dataItems, navController)
+                        }
+                        composable("DetailsScreen/{itemId}") { backStackEntry ->
+                            val itemId = backStackEntry.arguments?.getString("itemId")
+                            val selectedItem = dataItems.find { it.id.toString() == itemId }
+                            DetailsScreen(selectedItem = selectedItem, navController = navController)
+                        }
+                    }
                 }
             }
         }
@@ -77,10 +93,10 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DataItemView(dataItem: DataItem) {
+fun DataItemView(dataItem: DataItem, navController: NavController) {
     /* Create the view for the data item her. */
-    var showDialog by remember { mutableStateOf(false) }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { showDialog = true }) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {navController.navigate("DetailsScreen/${dataItem.id}")}) {
+
         Column() {
             Text(Integer.toString(dataItem.id), fontSize = 40.sp)
         }
@@ -91,27 +107,43 @@ fun DataItemView(dataItem: DataItem) {
             Text(dataItem.description)
         }
     }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false},
-            title = { Text(dataItem.name) },
-            text = { Text(dataItem.description) },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false}) {
-                    Text("Okay")
-                }
-            }
-        )
-    }
-
 }
 @Composable
-fun DataItemList(dataItems: List<DataItem>) {
+fun DetailsScreen(selectedItem: DataItem?, navController: NavController) {
+    if (selectedItem != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier.padding(90.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = Color.LightGray // Replace with your desired grey color
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(Integer.toString(selectedItem.id), fontSize = 40.sp)
+                    Text(selectedItem.name, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(selectedItem.description)
+                    Spacer(modifier = Modifier.size(16.dp))
+                    TextButton(onClick = { navController.navigate("ListScreen") }) {
+                        Text(text = "Back")
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
+fun DataItemList(dataItems: List<DataItem>, navController: NavController) {
     /* Create the list here. This function will call DataItemView() */
     LazyColumn {
         items(dataItems){ dataItem ->
-            DataItemView(dataItem = dataItem)
+            DataItemView(dataItem = dataItem, navController = navController)
         }
     }
 }
