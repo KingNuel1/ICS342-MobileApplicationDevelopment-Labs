@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,6 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ics342.labs.ui.theme.LabsTheme
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +31,7 @@ class MainActivity : ComponentActivity() {
                     /*
                     Display the items from the Json file in a LazyColumn
                      */
+                    DisplayData(data = data)
                 }
             }
         }
@@ -40,8 +45,19 @@ private fun loadData(resources: Resources): String {
         .use { it.readText() }
 }
 
-private fun dataFromJsonString(json: String): List</* Add your data type here */> {
-    val moshi: Moshi = Moshi.Builder().build()
-    val jsonAdapter: JsonAdapter<List</* Put your data type here */>> = moshi.adapter<List</* put your data type here*/>>()
-    return jsonAdapter.fromJson(json)
+@OptIn(ExperimentalStdlibApi::class)
+private fun dataFromJsonString(json: String): List<Data> {
+    val moshi: Moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+
+    val jsonAdapter = moshi.adapter<List<Data>>()
+    return jsonAdapter.fromJson(json) ?: listOf()
+}
+
+@Composable
+fun DisplayData(data: List<Data>) {
+    LazyColumn {
+        items(data) { item ->
+            Text(text = "${item.giveName} ${item.familyName}, Age: ${item.age}")
+        }
+    }
 }
