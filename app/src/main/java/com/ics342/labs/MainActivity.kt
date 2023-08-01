@@ -49,7 +49,10 @@ class MainActivity : ComponentActivity() {
                                 checkOrRequestPermission(
                                     context,
                                     launcher
-                                ) { startNotificationService(context) }
+
+                                ) {
+                                    startNotificationService(context)
+                                }
                             }
                         ) {
                             Text("Show Notification")
@@ -62,7 +65,8 @@ class MainActivity : ComponentActivity() {
 }
 
 fun startNotificationService(context: Context) {
-    TODO("Start the Notification Service")
+    val intent = Intent(context, NotificationService::class.java)
+    context.startService(intent)
 }
 
 private fun checkOrRequestPermission(

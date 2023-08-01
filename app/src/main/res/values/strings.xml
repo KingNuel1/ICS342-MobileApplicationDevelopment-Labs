@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Labs</string>
+    <string name="notification_title">Android Notification</string>
+    <string name="notification_body">Notification Successful.</string>
+    <string name="notification_channel_name">Lab8 Notification Channel</string>
+    <string name="notification_channel_description">Notification channel for Lab8</string>
+
 </resources>
