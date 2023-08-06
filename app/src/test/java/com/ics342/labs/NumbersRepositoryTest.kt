@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.util.UUID
 import kotlin.random.Random
+import io.mockk.Runs
+import io.mockk.just
 
 internal class NumbersRepositoryTest {
 
@@ -35,6 +37,24 @@ internal class NumbersRepositoryTest {
 
     @Test
     fun ifDatabaseIsEmptyShouldFetchNumbersFromApi() {
-        // TODO: implement this test
+        //Setup
+        val database: Database = mockk<Database>()
+        val api : Api = mockk<Api>()
+        val number = Number(UUID.randomUUID().toString(), Random.nextInt())
+
+
+        every { database.getAllNumbers() } returns listOf()
+        every { api.getNumbers() } returns listOf(number)
+        every { database.storeNumbers(listOf(number))} just Runs
+
+        val repository = NumbersRepository(database, api)
+        val result = repository.fetchNumbers()
+
+        assertNotNull(result)
+        assertEquals(listOf(number), repository.fetchNumbers())
+
+        verify { database.getAllNumbers() }
+        verify { api.getNumbers() }
+        verify { database.storeNumbers(result) }
     }
 }

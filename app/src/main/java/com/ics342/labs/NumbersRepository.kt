@@ -1,5 +1,6 @@
 package com.ics342.labs
 
+
 class NumbersRepository(private val database: Database, private val api: Api) {
 
     fun fetchNumbers(): List<Number> {
